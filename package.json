@@ -1,0 +1,40 @@
+{
+  "name": "agentic-prediction-market",
+  "private": true,
+  "description": "Agentic Prediction Market — a Polymarket-style prediction market on DreamDEX Event Contracts (Somnia), traded end-to-end by AI agents.",
+  "workspaces": [
+    "app",
+    "agents/proxy-servers",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:app": "npm run dev -w app",
+    "build:app": "npm run build -w app",
+    "start:app": "npm run start -w app",
+    "demo:agents": "npm run demo -w proxy-servers",
+    "agent:creator": "npm run creator -w proxy-servers",
+    "agent:bettor:ada": "npm run bettor:ada -w proxy-servers",
+    "agent:bettor:nomi": "npm run bettor:nomi -w proxy-servers",
+    "agent:mcp": "npm run mcp -w proxy-servers",
+    "agent:chat:creator": "npm run chat:creator -w proxy-servers",
+    "agent:chat:bettor": "npm run chat:bettor -w proxy-servers",
+    "agent:cli": "npm run cli -w proxy-servers --",
+    "agent:register:ada": "npm run register:ada -w proxy-servers",
+    "agent:register:nomi": "npm run register:nomi -w proxy-servers",
+    "agent:register:sage": "npm run register:sage -w proxy-servers",
+    "demo:chat": "npm run demo:chat -w proxy-servers",
+    "chat:docker": "docker compose -f agents/proxy-servers/docker-compose.chat.yml up",
+    "wait:app": "wait-on http://localhost:3000/api/health",
+    "deploy:x402vault": "bash contracts/scripts/x402/deploy-x402-fee-vault.sh",
+    "deploy:erc8004": "bash contracts/scripts/erc8004/deploy-erc8004.sh",
+    "dev:all": "bash scripts/dev-all.sh",
+    "dev:all:log": "concurrently -n app,creator,bettor,webui -c blue,green,yellow,magenta \"npm run dev:app\" \"npm run wait:app && npm run agent:chat:creator\" \"npm run wait:app && npm run agent:chat:bettor\" \"npm run chat:docker\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "wait-on": "^9.1.0"
+  }
+}

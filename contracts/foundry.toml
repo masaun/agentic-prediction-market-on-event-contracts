@@ -1,0 +1,18 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+script = "scripts"
+test = "tests"
+solc_version = "0.8.35"
+optimizer = true
+optimizer_runs = 200
+# ReputationRegistry.giveFeedback's 8 params + an 11-field event overflow the
+# EVM's 16-slot stack under the legacy codegen — via-ir is the standard fix,
+# and changes nothing about any contract's logic/ABI.
+via_ir = true
+
+[rpc_endpoints]
+# Somnia testnet (Shannon, chain 50312) — public default; override with your
+# own node via SOMNIA_RPC_URL if you have one. See ../README.md.
+somnia_testnet = "${SOMNIA_RPC_URL:-https://dream-rpc.somnia.network}"

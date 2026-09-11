@@ -1,0 +1,35 @@
+{
+  "name": "proxy-servers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Proxy servers that route internal and external agents' requests into the app's REST API (./app/api) — a reference runtime (Anthropic tool-use) plus an MCP tool server for wiring the same tools into Hermes Agent or OpenClaw.",
+  "type": "module",
+  "scripts": {
+    "creator": "tsx ../demo-agents/creator-agent/index.ts",
+    "bettor:ada": "AGENT_PERSONA=ada tsx ../demo-agents/bettor-agent/index.ts",
+    "bettor:nomi": "AGENT_PERSONA=nomi tsx ../demo-agents/bettor-agent/index.ts",
+    "mcp": "tsx shared/mcpServer.ts",
+    "demo": "tsx run-demo.ts",
+    "chat:creator": "tsx ../demo-agents/creator-agent/chatServer.ts",
+    "chat:bettor": "tsx ../demo-agents/bettor-agent/chatServer.ts",
+    "demo:chat": "tsx run-chat.ts",
+    "cli": "tsx ../demo-agents/cli/index.ts",
+    "register:ada": "tsx ../demo-agents/cli/index.ts register --agent agent-ada",
+    "register:nomi": "tsx ../demo-agents/cli/index.ts register --agent agent-nomi",
+    "register:sage": "tsx ../demo-agents/cli/index.ts register --agent agent-sage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
+    "@apm/market-engine": "*",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "dotenv": "^16.4.7",
+    "viem": "^2.55.19",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

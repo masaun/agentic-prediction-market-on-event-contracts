@@ -1,0 +1,40 @@
+# Open WebUI (https://github.com/open-webui/open-webui) as the chat UI for
+# Sage, Ada, and Nomi. Run the two chat servers on the host first
+# (`npm run demo:chat -w proxy-servers`, or `npm run demo:chat` from the repo
+# root), then:
+#
+#   docker compose -f agents/proxy-servers/docker-compose.chat.yml up
+#
+# and open http://localhost:3010 — all three agents show up as models in one
+# chat UI (Open WebUI merges the models from every OpenAI API connection you
+# give it; here that's the creator chat server on :4001 and the bettor chat
+# server on :4002, both reached via host.docker.internal since Open WebUI
+# runs in its own container). See README.md's "Chat UI (Open WebUI)" section.
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: apm-open-webui
+    ports:
+      - "3010:8080"
+    environment:
+      # Semicolon-separated lists — one entry per chat server, in the same order.
+      OPENAI_API_BASE_URLS: "http://host.docker.internal:4001/v1;http://host.docker.internal:4002/v1"
+      OPENAI_API_KEYS: "local;local"
+      # Single-user local demo — skip Open WebUI's own login screen. Re-enable
+      # (remove this line, or set true) before exposing this beyond localhost.
+      WEBUI_AUTH: "False"
+      ENABLE_OLLAMA_API: "False"
+      # Pre-selects this model on a new chat. Only takes effect for a fresh
+      # open-webui-data volume / first-run user — if you already picked a
+      # default model in Settings -> General before, that per-user setting
+      # wins and you'll need to reselect it there.
+      DEFAULT_MODELS: "nomi-bettor-agent"
+    extra_hosts:
+      # Docker Desktop (macOS/Windows) already resolves this; required on Linux.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - open-webui-data:/app/backend/data
+    restart: unless-stopped
+
+volumes:
+  open-webui-data:

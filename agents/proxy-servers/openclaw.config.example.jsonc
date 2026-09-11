@@ -1,0 +1,48 @@
+// Illustrative — OpenClaw config lives at ~/.openclaw/openclaw.json, with MCP
+// servers under `mcp.servers`. Field names per
+// https://docs.openclaw.ai/gateway/configuration as of writing; recheck your
+// installed version's docs before relying on this verbatim.
+//
+// This registers proxy-servers' DreamDEX Event Contracts tool server
+// (list/get markets, place orders, mint sets, redeem, ...) so OpenClaw's own
+// agent loop can drive the same market actions the built-in demo agents use,
+// instead of (or alongside) shared/llmLoop.ts.
+//
+// Secrets (APM_AGENT_API_KEY, AGENT_WALLET_PRIVATE_KEY) are NOT hardcoded
+// below. OpenClaw loads env files in this order — parent process env, then
+// .env in the current working directory, then ~/.openclaw/.env as a global
+// fallback — and resolves "${VAR_NAME}" in any config string value from
+// whatever that resolves to (see
+// https://docs.openclaw.ai/gateway/configuration):
+//
+//   # ~/.openclaw/.env
+//   AGENT_WALLET_PRIVATE_KEY=0x...
+//   # APM_AGENT_API_KEY=...
+{
+  mcp: {
+    servers: {
+      "dreamdex-event-contracts": {
+        command: "npx",
+        args: ["tsx", "shared/mcpServer.ts"],
+        // Run from the proxy-servers/ directory, or set an absolute path
+        // for `args[1]` if OpenClaw's cwd differs.
+        env: {
+          APM_API_URL: "http://localhost:3000",
+          AGENT_ID: "openclaw-trader",
+          // APM_AGENT_API_KEY: "${APM_AGENT_API_KEY}",  // only if the app requires it
+
+          // Optional — give this agent its own wallet so BUY_YES/BUY_NO pays
+          // the x402 platform fee and trades DreamDEX directly, instead of
+          // the app placing the order. Needs testnet SOMI/STT (gas) + tUSDC
+          // funded to the address this key derives to. See
+          // contracts/doc/x402/X402.md. Only this spawned process ever sees
+          // the resolved value — OpenClaw's own reasoning core never does.
+          // AGENT_WALLET_PRIVATE_KEY: "${AGENT_WALLET_PRIVATE_KEY}",
+          // SOMNIA_NETWORK: "testnet",
+        },
+      },
+    },
+  },
+  // Tool allowlisting, if your policy is scoped:
+  // tools: { allow: ["bundle-mcp", "dreamdex-event-contracts__*"] },
+}

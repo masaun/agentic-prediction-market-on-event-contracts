@@ -1,0 +1,42 @@
+# Illustrative — Hermes Agent config lives at ~/.hermes/config.yaml, with
+# stdio MCP servers registered under `mcp_servers`. Field names per
+# https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp as of
+# writing; recheck your installed version's docs before relying on this
+# verbatim. Hermes prefixes registered tools as mcp_<server_name>_<tool_name>,
+# e.g. mcp_dreamdex_event_contracts_place_order.
+#
+# This registers proxy-servers' DreamDEX Event Contracts tool server
+# (list/get markets, place orders, mint sets, redeem, ...) so Hermes Agent's
+# own learning loop can drive the same market actions the built-in demo
+# agents use, instead of (or alongside) shared/llmLoop.ts.
+#
+# Secrets (APM_AGENT_API_KEY, AGENT_WALLET_PRIVATE_KEY) are NOT hardcoded
+# below — per Hermes' own secrets guide
+# (https://hermes-agent.nousresearch.com/docs/user-guide/secrets/), the right
+# place for them is ~/.hermes/.env, referenced here via ${VAR_NAME}:
+#
+#   # ~/.hermes/.env
+#   AGENT_WALLET_PRIVATE_KEY=0x...
+#   # APM_AGENT_API_KEY=...
+
+mcp_servers:
+  dreamdex_event_contracts:
+    command: "npx"
+    args: ["tsx", "shared/mcpServer.ts"]
+    # Run from the proxy-servers/ directory, or use an absolute path above
+    # if Hermes' working directory differs.
+    env:
+      APM_API_URL: "http://localhost:3000"
+      AGENT_ID: "hermes-trader"
+      # APM_AGENT_API_KEY: "${APM_AGENT_API_KEY}"   # only if the app requires it
+      #
+      # Optional — give this agent its own wallet so BUY_YES/BUY_NO pays the
+      # x402 platform fee and trades DreamDEX directly, instead of the app
+      # placing the order. Needs testnet SOMI/STT (gas) + tUSDC funded to the
+      # address this key derives to. See contracts/doc/x402/X402.md. Only
+      # this spawned process ever sees the resolved value — Hermes' own
+      # reasoning core never does. (If your installed Hermes version doesn't
+      # resolve ${VAR} inside this env: mapping specifically, check its
+      # current secrets docs — this is a fast-moving project.)
+      # AGENT_WALLET_PRIVATE_KEY: "${AGENT_WALLET_PRIVATE_KEY}"
+      # SOMNIA_NETWORK: "testnet"
